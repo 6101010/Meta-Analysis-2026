@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 import os
@@ -39,7 +39,7 @@ warnings.filterwarnings('ignore', category=UserWarning)
 
 class ModeratorAnalysisV20Enhanced:
     """
-    Meta分析调节变量探索类 V2.0 Enhanced
+    Meta分析Moderator Variable探索类 V2.0 Enhanced
     
     符合V2.0审核标准的完整实现，包括：
     - 严格的输入验证和边界条件检查
@@ -64,12 +64,12 @@ class ModeratorAnalysisV20Enhanced:
                  vif_threshold: float = 5.0,
                  alpha_level: float = 0.05):
         """
-        初始化调节变量分析器
+        初始化Moderator Variable分析器
         
         Args:
             input_csv_path: 输入CSV文件路径
             output_directory: 输出目录路径
-            es_col: 效应量列名
+            es_col: Effect Size列名
             var_col: 方差列名
             cluster_col: 聚类变量列名
             random_seed: 随机种子
@@ -114,8 +114,8 @@ class ModeratorAnalysisV20Enhanced:
         self._setup_logging()
         
         self._log("=" * 60)
-        self._log("Meta分析调节变量探索 V2.0 Enhanced 启动")
-        self._log("基于meta分析调节变量审核提示词 V2.0")
+        self._log("Meta分析Moderator Variable探索 V2.0 Enhanced 启动")
+        self._log("基于meta分析Moderator Variable审核提示词 V2.0")
         self._log("=" * 60)
         self._log(f"配置参数:")
         self._log(f"  - 分类变量阈值: {self.categorical_threshold}")
@@ -187,10 +187,10 @@ class ModeratorAnalysisV20Enhanced:
     
     def run_complete_analysis(self):
         """
-        运行完整的调节变量分析流程
+        运行完整的Moderator Variable分析流程
         """
         try:
-            self._log("开始完整的调节变量分析流程...")
+            self._log("开始完整的Moderator Variable分析流程...")
             
             # 第1步：全面的输入验证
             self.step1_comprehensive_input_validation()
@@ -201,7 +201,7 @@ class ModeratorAnalysisV20Enhanced:
             # 第3步：建立基线模型
             self.step3_baseline_model_establishment()
             
-            # 第4步：系统性调节变量分析
+            # 第4步：系统性Moderator Variable分析
             self.step4_systematic_moderator_analysis()
             
             # 第5步：多重检验校正
@@ -217,13 +217,13 @@ class ModeratorAnalysisV20Enhanced:
             self._generate_diagnostic_plots()
             
             self._log("=" * 60)
-            self._log("Meta分析调节变量探索 V2.0 Enhanced 完成")
+            self._log("Meta分析Moderator Variable探索 V2.0 Enhanced 完成")
             self._log("=" * 60)
             
             # 最终总结
             self._log("分析总结:")
             self._log(f"  - 总研究数量: {len(self.df)}")
-            self._log(f"  - 分析的调节变量: {len(self.moderators_metadata)}")
+            self._log(f"  - 分析的Moderator Variable: {len(self.moderators_metadata)}")
             self._log(f"  - 排除的变量: {len(self.excluded_variables)}")
             self._log(f"  - 原始显著变量: {len(self.significant_moderators)}")
             
@@ -268,7 +268,7 @@ class ModeratorAnalysisV20Enhanced:
         required_cols = [self.es_col, self.var_col]
         missing_cols = [col for col in required_cols if col not in self.original_df.columns]
         if missing_cols:
-            raise ValueError(f"缺少必需的核心列: {missing_cols}。请确保数据包含效应量列('{self.es_col}')和方差列('{self.var_col}')")
+            raise ValueError(f"缺少必需的核心列: {missing_cols}。请确保数据包含Effect Size列('{self.es_col}')和方差列('{self.var_col}')")
         
         # 1.5 聚类变量健壮性检查
         if self.cluster_col:
@@ -286,14 +286,14 @@ class ModeratorAnalysisV20Enhanced:
         # 1.6 核心列数据类型和数值有效性检查
         self.df = self.original_df.copy()
         
-        # 检查效应量列
+        # 检查Effect Size列
         try:
             self.df[self.es_col] = pd.to_numeric(self.df[self.es_col], errors='coerce')
             es_na_count = self.df[self.es_col].isna().sum()
             if es_na_count > 0:
-                self._log(f"警告: 效应量列包含 {es_na_count} 个无效值，将在分析中排除", "WARNING")
+                self._log(f"警告: Effect Size列包含 {es_na_count} 个无效值，将在分析中排除", "WARNING")
         except Exception as e:
-            raise ValueError(f"效应量列 '{self.es_col}' 无法转换为数值类型: {str(e)}")
+            raise ValueError(f"Effect Size列 '{self.es_col}' 无法转换为数值类型: {str(e)}")
         
         # 检查方差列 - 统计有效性断言
         try:
@@ -325,7 +325,7 @@ class ModeratorAnalysisV20Enhanced:
         if removed_count > 0:
             self._log(f"移除了 {removed_count} 行因核心列缺失的数据")
         
-        # 1.8 最小样本量检查
+        # 1.8 最小Sample Size检查
         if final_count < self.min_studies_threshold:
             warning_msg = f"""
             ⚠️ 严重警告：研究数量过少 ⚠️
@@ -333,7 +333,7 @@ class ModeratorAnalysisV20Enhanced:
             当前研究数量: {final_count}
             建议最小数量: {self.min_studies_threshold}
             
-            在研究数量如此有限的情况下进行调节变量分析在统计上是危险的，可能导致：
+            在研究数量如此有限的情况下进行Moderator Variable分析在统计上是危险的，可能导致：
             1. 统计功效严重不足
             2. 参数估计不稳定
             3. 过拟合风险极高
@@ -341,7 +341,7 @@ class ModeratorAnalysisV20Enhanced:
             
             强烈建议：
             - 收集更多研究数据
-            - 或者仅进行描述性分析
+            - 或者仅进行Descriptive Analysis
             - 如果继续分析，请极其谨慎解释结果
             """
             self._log(warning_msg, "WARNING")
@@ -350,7 +350,7 @@ class ModeratorAnalysisV20Enhanced:
             self._log("尽管存在风险，分析将继续进行，但所有结果都应被视为初步和不可靠的", "WARNING")
         
         self._log(f"输入验证完成。最终数据集: {final_count} 个研究")
-        self._log(f"效应量范围: [{self.df[self.es_col].min():.4f}, {self.df[self.es_col].max():.4f}]")
+        self._log(f"Effect Size范围: [{self.df[self.es_col].min():.4f}, {self.df[self.es_col].max():.4f}]")
         self._log(f"方差范围: [{self.df[self.var_col].min():.6f}, {self.df[self.var_col].max():.6f}]")
     
     def step2_intelligent_variable_screening(self):
@@ -360,7 +360,7 @@ class ModeratorAnalysisV20Enhanced:
         """
         self._log("=== 第2步：智能变量筛选与预处理 ===")
         
-        # 2.1 识别候选调节变量
+        # 2.1 识别候选Moderator Variable
         core_cols = [self.es_col, self.var_col]
         if self.cluster_col:
             core_cols.append(self.cluster_col)
@@ -371,7 +371,7 @@ class ModeratorAnalysisV20Enhanced:
         all_excluded_cols = core_cols + user_excluded_cols
         candidate_cols = [col for col in self.df.columns if col not in all_excluded_cols]
         
-        self._log(f"识别到 {len(candidate_cols)} 个候选调节变量")
+        self._log(f"识别到 {len(candidate_cols)} 个候选Moderator Variable")
         
         # 2.2 高缺失率变量自动排除
         self._log("检查变量缺失率...")
@@ -462,7 +462,7 @@ class ModeratorAnalysisV20Enhanced:
         self.df.to_csv(preprocessed_path, index=False)
         self._log(f"预处理后的数据已保存: {preprocessed_path}")
         
-        self._log(f"变量筛选完成。最终候选调节变量: {len(self.moderators_metadata)}")
+        self._log(f"变量筛选完成。最终候选Moderator Variable: {len(self.moderators_metadata)}")
         self._log(f"  - 分类变量: {len(categorical_vars)}")
         self._log(f"  - 连续变量: {len(continuous_vars)}")
         self._log(f"  - 排除变量: {len(self.excluded_variables)}")
@@ -484,7 +484,7 @@ class ModeratorAnalysisV20Enhanced:
             mask = np.triu(np.ones_like(corr_data, dtype=bool))
             sns.heatmap(corr_data, mask=mask, annot=True, cmap='coolwarm', center=0,
                        square=True, linewidths=0.5, cbar_kws={"shrink": 0.8})
-            plt.title('候选连续调节变量相关性矩阵\n*注释：本分析属于探索性质，旨在生成假设*', 
+            plt.title('候选连续Moderator Variable相关性矩阵\n*Note: Exploratory analysis for hypothesis generation*', 
                      fontsize=14, pad=20)
             plt.tight_layout()
             
@@ -533,7 +533,7 @@ class ModeratorAnalysisV20Enhanced:
             
             self._log(f"分类变量摘要表格已保存: {categorical_path}")
             
-            # 检查小样本量亚组
+            # 检查小Sample Size亚组
             small_subgroups = []
             for col in categorical_vars:
                 value_counts = self.df[col].value_counts()
@@ -542,10 +542,10 @@ class ModeratorAnalysisV20Enhanced:
                     small_subgroups.extend([(col, cat, count) for cat, count in small_counts.items()])
             
             if small_subgroups:
-                self._log(f"发现 {len(small_subgroups)} 个小样本量亚组 (k < {self.subgroup_min_k}):")
+                self._log(f"发现 {len(small_subgroups)} 个小Sample Size亚组 (k < {self.subgroup_min_k}):")
                 for var, cat, count in small_subgroups:
                     self._log(f"  - {var}[{cat}]: k = {count}")
-                self._log("警告: 小样本量亚组可能导致不稳定的估计")
+                self._log("警告: 小Sample Size亚组可能导致不稳定的估计")
     
     def step3_baseline_model_establishment(self):
         """
@@ -584,7 +584,7 @@ class ModeratorAnalysisV20Enhanced:
                 baseline_se = np.sqrt(1/np.sum(1/(v + self.baseline_tau2)))
             
             self._log(f"基线模型结果:")
-            self._log(f"  - 总体效应量: {baseline_fe:.4f} (SE = {baseline_se:.4f})")
+            self._log(f"  - 总体Effect Size: {baseline_fe:.4f} (SE = {baseline_se:.4f})")
             self._log(f"  - 异质性方差 (τ²): {self.baseline_tau2:.6f}")
             
             # 异质性检验
@@ -596,11 +596,11 @@ class ModeratorAnalysisV20Enhanced:
             self._log(f"  - I²: {I2:.1%}")
             
             if I2 > 0.5:
-                self._log("检测到中等到高度异质性，适合进行调节变量分析")
+                self._log("检测到中等到高度异质性，适合进行Moderator Variable分析")
             elif I2 > 0.25:
-                self._log("检测到轻度到中等异质性，调节变量分析可能有用")
+                self._log("检测到轻度到中等异质性，Moderator Variable分析可能有用")
             else:
-                self._log("异质性较低，调节变量分析的价值可能有限", "WARNING")
+                self._log("异质性较低，Moderator Variable分析的价值可能有限", "WARNING")
                 
         except Exception as e:
             self._log(f"基线模型建立失败: {str(e)}", "ERROR")
@@ -622,13 +622,13 @@ class ModeratorAnalysisV20Enhanced:
     
     def step4_systematic_moderator_analysis(self):
         """
-        第4步：系统性调节变量分析
+        第4步：系统性Moderator Variable分析
         包含全面的模型诊断和影响力分析
         """
-        self._log("=== 第4步：系统性调节变量分析 ===")
+        self._log("=== 第4步：系统性Moderator Variable分析 ===")
         
         for mod_name, mod_type in self.moderators_metadata.items():
-            self._log(f"分析调节变量: {mod_name} ({mod_type})")
+            self._log(f"分析Moderator Variable: {mod_name} ({mod_type})")
             
             try:
                 result = self._analyze_single_moderator_enhanced(mod_name, mod_type)
@@ -638,7 +638,7 @@ class ModeratorAnalysisV20Enhanced:
                     # 判断是否显著（使用原始p值）
                     if result.get('lrt_p', 1) < self.alpha_level:
                         self.significant_moderators.append(result)
-                        self._log(f"  ✓ 显著调节变量 (p = {result['lrt_p']:.4f})")
+                        self._log(f"  ✓ 显著Moderator Variable (p = {result['lrt_p']:.4f})")
                     else:
                         self._log(f"  - 非显著 (p = {result['lrt_p']:.4f})")
                         
@@ -646,11 +646,11 @@ class ModeratorAnalysisV20Enhanced:
                 self._log(f"分析 {mod_name} 时出错: {str(e)}", "ERROR")
                 continue
         
-        self._log(f"单变量分析完成。显著调节变量: {len(self.significant_moderators)}/{len(self.moderators_metadata)}")
+        self._log(f"单变量分析完成。显著Moderator Variable: {len(self.significant_moderators)}/{len(self.moderators_metadata)}")
     
     def _analyze_single_moderator_enhanced(self, mod_name: str, mod_type: str) -> Optional[Dict]:
         """
-        增强版单调节变量分析
+        增强版单Moderator Variable分析
         包含全面的模型诊断
         """
         try:
@@ -663,11 +663,11 @@ class ModeratorAnalysisV20Enhanced:
                 return None
                 
         except Exception as e:
-            self._log(f"分析调节变量 {mod_name} 时发生错误: {str(e)}", "ERROR")
+            self._log(f"分析Moderator Variable {mod_name} 时发生错误: {str(e)}", "ERROR")
             return None
     
     def _analyze_continuous_moderator_enhanced(self, mod_name: str, mod_type: str) -> Optional[Dict]:
-        """增强版连续调节变量分析"""
+        """增强版连续Moderator Variable分析"""
         z_var_name = f"{mod_name}_z"
         
         if z_var_name not in self.df.columns:
@@ -768,7 +768,7 @@ class ModeratorAnalysisV20Enhanced:
             return None
     
     def _analyze_categorical_moderator_enhanced(self, mod_name: str, mod_type: str) -> Optional[Dict]:
-        """增强版分类调节变量分析"""
+        """增强版分类Moderator Variable分析"""
         # 找到虚拟变量
         dummy_cols = [col for col in self.df.columns if col.startswith(f"{mod_name}_")]
         
@@ -1003,7 +1003,7 @@ class ModeratorAnalysisV20Enhanced:
             return {
                 'original_beta': original_beta,
                 'original_std': original_std,
-                'interpretation': f"原始尺度下，{mod_name}每增加1个单位，效应量变化{original_beta:.4f}"
+                'interpretation': f"原始尺度下，{mod_name}每增加1个单位，Effect Size变化{original_beta:.4f}"
             }
         except:
             return {'error': '无法转换到原始尺度'}
@@ -1034,7 +1034,7 @@ class ModeratorAnalysisV20Enhanced:
                         'ci_upper': pooled_es + 1.96 * pooled_se
                     })
                 else:
-                    self._log(f"  亚组 '{category}' 样本量不足 (k={len(subgroup_data)})", "WARNING")
+                    self._log(f"  亚组 '{category}' Sample Size不足 (k={len(subgroup_data)})", "WARNING")
         
         except Exception as e:
             self._log(f"亚组分析失败: {str(e)}", "WARNING")
@@ -1270,7 +1270,7 @@ class ModeratorAnalysisV20Enhanced:
             lost_significance = len(self.significant_moderators) - len(significant_corrected)
             self._log(f"  - {lost_significance} 个变量在校正后失去显著性")
         
-        # 更新显著调节变量列表（基于校正后的结果）
+        # 更新显著Moderator Variable列表（基于校正后的结果）
         self.significant_moderators_corrected = significant_corrected
     
     def _benjamini_hochberg_correction(self, p_values: List[float]) -> List[float]:
@@ -1344,12 +1344,12 @@ class ModeratorAnalysisV20Enhanced:
         
         with open(report_path, "w", encoding='utf-8-sig') as f:
             # 硬编码的探索性标题
-            f.write("# Meta分析调节变量探索报告 V2.0 Enhanced\n")
-            f.write("## 一份探索性调节变量分析报告\n\n")
+            f.write("# Meta分析Moderator Variable探索报告 V2.0 Enhanced\n")
+            f.write("## 一份探索性Moderator Variable分析报告\n\n")
             
             # 执行摘要表格
             f.write("## 1. 执行摘要\n\n")
-            f.write("| 调节变量 | 类型 | k | R²_adj | 原始p值 | 校正q值 | 显著性 |\n")
+            f.write("| Moderator Variable | 类型 | k | R²_adj | 原始p值 | 校正q值 | 显著性 |\n")
             f.write("|----------|------|---|--------|---------|---------|--------|\n")
             
             for result in self.results_summary:
@@ -1362,7 +1362,7 @@ class ModeratorAnalysisV20Enhanced:
                 f.write(f"| {result['moderator']} | {result['type']} | {result['n_studies']} | ")
                 f.write(f"{result['R2_adj']:.3f} | {p_val} | {q_val} | {sig_status} |\n")
             
-            f.write("\n*注释：本分析属于探索性质，旨在生成假设。所有发现，特别是未经多重检验校正的p值，均需在未来的预注册研究中进行验证性检验。*\n\n")
+            f.write("\n*Note: Exploratory analysis for hypothesis generation。所有发现，特别是未经多重检验校正的p值，均需在未来的预注册研究中进行验证性检验。*\n\n")
             
             f.write("## 2. 详细分析结果\n\n")
             for result in self.results_summary:
@@ -1375,12 +1375,12 @@ class ModeratorAnalysisV20Enhanced:
                 f.write(f"- **校正后q值**: {result.get('lrt_q', 'N/A'):.4f}\n\n")
                 
                 # 单变量分析警示
-                f.write("**注意**: 此为单变量分析结果，未校正其他潜在调节变量的影响，可能存在混杂偏倚。最终解释应以多变量模型为准。\n\n")
+                f.write("**注意**: 此为单变量分析结果，未校正其他潜在Moderator Variable的影响，可能存在混杂偏倚。最终解释应以多变量模型为准。\n\n")
                 
                 # 系数信息
                 if 'coefficients' in result:
                     f.write("#### 回归系数\n\n")
-                    f.write("| 变量 | 系数 | 标准误 | Z值 | p值 | 95% CI |\n")
+                    f.write("| 变量 | 系数 | Standard Error | Z值 | p值 | 95% CI |\n")
                     f.write("|------|------|--------|-----|-----|--------|\n")
                     
                     for coeff in result['coefficients']:
@@ -1400,7 +1400,7 @@ class ModeratorAnalysisV20Enhanced:
                     subgroups = result['subgroup_analysis']
                     if subgroups:
                         f.write("#### 亚组分析\n\n")
-                        f.write("| 类别 | k | 效应量 | 标准误 | 95% CI |\n")
+                        f.write("| 类别 | k | Effect Size | Standard Error | 95% CI |\n")
                         f.write("|------|---|--------|--------|--------|\n")
                         
                         for subgroup in subgroups:
@@ -1436,13 +1436,13 @@ class ModeratorAnalysisV20Enhanced:
                 f.write(f"- **R²_adj**: {mv['R2_adj']:.3f}\n")
                 f.write(f"- **似然比检验**: χ² = {mv['lrt_chi2']:.3f}, df = {mv['lrt_df']}, p = {mv['lrt_p']:.4f}\n\n")
                 
-                f.write("**注意**: 多变量模型同时考虑了多个调节变量的影响，提供了更准确的效应估计。\n\n")
+                f.write("**注意**: 多变量模型同时考虑了多个Moderator Variable的影响，提供了更准确的效应估计。\n\n")
             
             # 局限性和注意事项
             f.write("## 局限性和注意事项\n\n")
             f.write("### 统计功效\n")
             f.write("- 本分析的统计功效可能有限，特别是对于交互效应的检测\n")
-            f.write("- 小样本量可能导致不稳定的参数估计\n")
+            f.write("- 小Sample Size可能导致不稳定的参数估计\n")
             f.write("- 建议在更大的样本中验证这些发现\n\n")
             
             f.write("### 多重检验\n")
@@ -1452,14 +1452,14 @@ class ModeratorAnalysisV20Enhanced:
             
             f.write("### 因果推断\n")
             f.write("- 本分析为观察性研究的二次分析，无法建立因果关系\n")
-            f.write("- 调节变量的效应可能受到未观测混杂因素的影响\n")
+            f.write("- Moderator Variable的效应可能受到未观测混杂因素的影响\n")
             f.write("- 结果应谨慎解释，避免过度推广\n\n")
             
             # 硬编码的探索性标签
             f.write("---\n\n")
-            f.write("**重要声明**: *注释：本分析属于探索性质，旨在生成假设。所有发现，特别是未经多重检验校正的p值，均需在未来的预注册研究中进行验证性检验。*\n\n")
+            f.write("**重要声明**: *Note: Exploratory analysis for hypothesis generation。所有发现，特别是未经多重检验校正的p值，均需在未来的预注册研究中进行验证性检验。*\n\n")
             f.write(f"**报告生成时间**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
-            f.write("**分析工具**: Meta分析调节变量探索脚本 V2.0 Enhanced\n")
+            f.write("**分析工具**: Meta分析Moderator Variable探索脚本 V2.0 Enhanced\n")
         
         self._log(f"详细报告已保存: {report_path}")
     
@@ -1480,9 +1480,9 @@ class ModeratorAnalysisV20Enhanced:
         bars = plt.bar(range(len(r2_values)), r2_values, 
                       color=['red' if result.get('significant_corrected', False) else 'lightblue' 
                             for result in self.results_summary])
-        plt.xlabel('调节变量')
+        plt.xlabel('Moderator Variable')
         plt.ylabel('R²_adj')
-        plt.title('调节变量解释的异质性比例\n*注释：本分析属于探索性质，旨在生成假设*')
+        plt.title('Moderator Variable解释的异质性比例\n*Note: Exploratory analysis for hypothesis generation*')
         plt.xticks(range(len(moderator_names)), moderator_names, rotation=45, ha='right')
         plt.grid(axis='y', alpha=0.3)
         
@@ -1509,9 +1509,9 @@ class ModeratorAnalysisV20Enhanced:
         plt.bar(x_pos + width/2, q_values, width, label='校正q值', alpha=0.7)
         
         plt.axhline(y=0.05, color='red', linestyle='--', alpha=0.7, label='α = 0.05')
-        plt.xlabel('调节变量')
+        plt.xlabel('Moderator Variable')
         plt.ylabel('p值 / q值')
-        plt.title('原始p值与校正q值比较\n*注释：本分析属于探索性质，旨在生成假设*')
+        plt.title('Comparison of Original p-value and Adjusted q-value\n*Note: Exploratory analysis for hypothesis generation*')
         plt.xticks(x_pos, moderator_names, rotation=45, ha='right')
         plt.legend()
         plt.grid(axis='y', alpha=0.3)
@@ -1532,7 +1532,7 @@ def main():
     config = {
         'input_csv_path': 'meta_analysis_results_v3.1.csv',  # 替换为实际文件路径
         'output_directory': 'moderator_analysis_output_v2.0_enhanced',
-        'es_col': 'es',  # 效应量列名
+        'es_col': 'es',  # Effect Size列名
         'var_col': 'v',  # 方差列名
         'cluster_col': 'author',  # 聚类变量列名（可选）
         'categorical_threshold': 10,  # 分类变量判断阈值
