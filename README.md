@@ -3,7 +3,7 @@
 This repository contains the dataset and automated Python workflows to replicate the meta-analysis presented in the article "[From Tools to Social Partners A Meta-Analysis of Generative AI’s Superiority via CASA and SDT]" submitted to *Humanities and Social Sciences Communications*.
 
 ## Repository Structure
-- `meta_analysis_results_new.csv`: Raw extracted dataset for the meta-analysis.
+- `meta_analysis_results_new_english.csv`: Raw extracted dataset for the meta-analysis.
 - `01_effect_size_workflow.py`: Effect size calculation and data QA protocol.
 - `02_core_model_fitting.py`: Two-level/Three-level random-effects model fitting.
 - `03_moderator_analysis.py`: Automated systematic moderator analysis.
