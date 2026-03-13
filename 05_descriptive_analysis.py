@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 
@@ -20,18 +20,18 @@ warnings.filterwarnings('ignore')
 
 class DescriptiveAnalysis:
     """
-    研究特征描述性分析类
+    Descriptive Analysis类
     
     主要功能：
-    - 研究分布统计
-    - 样本量分析
+    - Study Distribution统计
+    - Sample Size分析
     - 干预特征分析
     - 质量评估
     """
     
     def __init__(self, data_file=None):
         """
-        初始化描述性分析对象
+        初始化Descriptive Analysis对象
         
         参数:
         data_file: str, 数据文件路径
@@ -47,7 +47,7 @@ class DescriptiveAnalysis:
         }
         
         print("\n" + "="*60)
-        print("📊 研究特征描述性分析系统 V1.0")
+        print("📊 Descriptive Analysis系统 V1.0")
         print("="*60)
         print(f"⏰ 分析时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         
@@ -102,7 +102,7 @@ class DescriptiveAnalysis:
         # 提取年份信息
         self._extract_year_info()
         
-        # 标准化教育阶段
+        # 标准化Education Stage
         self._standardize_education_stage()
         
         # 标准化AI类型
@@ -132,7 +132,7 @@ class DescriptiveAnalysis:
     
     def _standardize_education_stage(self):
         """
-        标准化教育阶段分类
+        标准化Education Stage分类
         """
         def categorize_education(stage_info):
             if pd.isna(stage_info):
@@ -140,7 +140,7 @@ class DescriptiveAnalysis:
             
             stage_str = str(stage_info).lower()
             
-            # 根据样本量和研究内容推断教育阶段
+            # 根据Sample Size和研究内容推断Education Stage
             # 这里需要根据实际数据进行调整
             if any(word in stage_str for word in ['小学', 'primary', 'elementary']):
                 return '小学'
@@ -231,23 +231,23 @@ class DescriptiveAnalysis:
     
     def analyze_study_distribution(self):
         """
-        分析研究分布统计
+        分析Study Distribution统计
         """
-        print("\n📊 分析研究分布统计...")
+        print("\n📊 分析Study Distribution统计...")
         
         results = {}
         
-        # 1. 按教育阶段分布
+        # 1. 按Education Stage分布
         education_dist = self.valid_data['education_stage_clean'].value_counts()
         results['education_distribution'] = education_dist
-        print(f"\n📚 教育阶段分布:")
+        print(f"\n📚 Education Stage分布:")
         for stage, count in education_dist.items():
             print(f"   {stage}: {count}项研究")
         
-        # 2. 按国家分布
+        # 2. 按Country分布
         country_dist = self.valid_data['country'].value_counts()
         results['country_distribution'] = country_dist
-        print(f"\n🌍 国家分布 (前10位):")
+        print(f"\n🌍 Country分布 (前10位):")
         for country, count in country_dist.head(10).items():
             print(f"   {country}: {count}项研究")
         
@@ -272,13 +272,13 @@ class DescriptiveAnalysis:
     
     def analyze_sample_size(self):
         """
-        分析样本量统计
+        分析Sample Size统计
         """
-        print("\n📊 分析样本量统计...")
+        print("\n📊 分析Sample Size统计...")
         
         results = {}
         
-        # 总样本量统计
+        # 总Sample Size统计
         sample_sizes = self.valid_data['sample_size_total'].dropna()
         
         if len(sample_sizes) > 0:
@@ -293,7 +293,7 @@ class DescriptiveAnalysis:
                 'q75': sample_sizes.quantile(0.75)
             }
             
-            print(f"\n👥 总样本量描述统计:")
+            print(f"\n👥 总Sample Size描述统计:")
             print(f"   研究数量: {len(sample_sizes)}")
             print(f"   平均值: {sample_sizes.mean():.1f}")
             print(f"   中位数: {sample_sizes.median():.1f}")
@@ -301,14 +301,14 @@ class DescriptiveAnalysis:
             print(f"   范围: {sample_sizes.min():.0f} - {sample_sizes.max():.0f}")
             print(f"   四分位数: Q1={sample_sizes.quantile(0.25):.1f}, Q3={sample_sizes.quantile(0.75):.1f}")
         
-        # 按研究类型的样本量分布
+        # 按研究类型的Sample Size Distribution
         if 'education_stage_clean' in self.valid_data.columns:
             sample_by_education = self.valid_data.groupby('education_stage_clean')['sample_size_total'].agg([
                 'count', 'mean', 'median', 'std', 'min', 'max'
             ]).round(1)
             results['sample_by_education'] = sample_by_education
             
-            print(f"\n📚 按教育阶段的样本量分布:")
+            print(f"\n📚 按Education Stage的Sample Size Distribution:")
             print(sample_by_education)
         
         self.analysis_results['sample_size'] = results
@@ -322,10 +322,10 @@ class DescriptiveAnalysis:
         
         results = {}
         
-        # 1. 干预时长分布
+        # 1. Intervention Duration Distribution
         duration_dist = self.valid_data['intervention_duration_clean'].value_counts()
         results['duration_distribution'] = duration_dist
-        print(f"\n⏱️ 干预时长分布:")
+        print(f"\n⏱️ Intervention Duration Distribution:")
         for duration, count in duration_dist.items():
             print(f"   {duration}: {count}项研究")
         
@@ -413,21 +413,21 @@ class DescriptiveAnalysis:
         print("\n📊 创建可视化图表...")
         
         fig, axes = plt.subplots(2, 3, figsize=(18, 12))
-        fig.suptitle('研究特征描述性分析可视化', fontsize=16, fontweight='bold')
+        fig.suptitle('Descriptive Analysis可视化', fontsize=16, fontweight='bold')
         
-        # 1. 教育阶段分布
+        # 1. Education Stage分布
         if 'study_distribution' in self.analysis_results:
             education_data = self.analysis_results['study_distribution']['education_distribution']
             axes[0, 0].pie(education_data.values, labels=education_data.index, autopct='%1.1f%%')
-            axes[0, 0].set_title('教育阶段分布')
+            axes[0, 0].set_title('Education Stage分布')
         
-        # 2. 国家分布（前8位）
+        # 2. Country分布（前8位）
         if 'study_distribution' in self.analysis_results:
             country_data = self.analysis_results['study_distribution']['country_distribution'].head(8)
             axes[0, 1].bar(range(len(country_data)), country_data.values)
             axes[0, 1].set_xticks(range(len(country_data)))
             axes[0, 1].set_xticklabels(country_data.index, rotation=45, ha='right')
-            axes[0, 1].set_title('国家分布 (前8位)')
+            axes[0, 1].set_title('Country分布 (前8位)')
             axes[0, 1].set_ylabel('研究数量')
         
         # 3. AI类型分布
@@ -436,12 +436,12 @@ class DescriptiveAnalysis:
             axes[0, 2].pie(ai_data.values, labels=ai_data.index, autopct='%1.1f%%')
             axes[0, 2].set_title('AI类型分布')
         
-        # 4. 样本量分布直方图
+        # 4. Sample Size Distribution直方图
         if 'sample_size' in self.analysis_results:
             sample_sizes = self.valid_data['sample_size_total'].dropna()
             axes[1, 0].hist(sample_sizes, bins=15, alpha=0.7, color='skyblue', edgecolor='black')
-            axes[1, 0].set_title('样本量分布')
-            axes[1, 0].set_xlabel('样本量')
+            axes[1, 0].set_title('Sample Size Distribution')
+            axes[1, 0].set_xlabel('Sample Size')
             axes[1, 0].set_ylabel('频次')
         
         # 5. 发表年份趋势
@@ -475,7 +475,7 @@ class DescriptiveAnalysis:
         """
         print("\n📝 生成分析报告...")
         
-        report_content = f"""# 研究特征描述性分析报告
+        report_content = f"""# Descriptive Analysis报告
 
 ## 📊 分析概览
 
@@ -484,9 +484,9 @@ class DescriptiveAnalysis:
 **总研究数量**: {len(self.data)}
 **有效研究数量**: {len(self.valid_data)}
 
-## 📈 研究分布统计
+## 📈 Study Distribution统计
 
-### 教育阶段分布
+### Education Stage分布
 
 """
         
@@ -496,7 +496,7 @@ class DescriptiveAnalysis:
                 percentage = (count / len(self.valid_data)) * 100
                 report_content += f"- **{stage}**: {count}项研究 ({percentage:.1f}%)\n"
             
-            report_content += "\n### 国家分布\n\n"
+            report_content += "\n### Country分布\n\n"
             country_dist = self.analysis_results['study_distribution']['country_distribution']
             for country, count in country_dist.head(10).items():
                 percentage = (count / len(self.valid_data)) * 100
@@ -510,12 +510,12 @@ class DescriptiveAnalysis:
         
         if 'sample_size' in self.analysis_results:
             stats = self.analysis_results['sample_size']['total_sample_stats']
-            report_content += f"""\n## 👥 样本量统计
+            report_content += f"""\n## 👥 Sample Size统计
 
 ### 总体描述统计
 
 - **研究数量**: {stats['count']}
-- **平均样本量**: {stats['mean']:.1f}
+- **平均Sample Size**: {stats['mean']:.1f}
 - **中位数**: {stats['median']:.1f}
 - **标准差**: {stats['std']:.1f}
 - **最小值**: {stats['min']:.0f}
@@ -526,7 +526,7 @@ class DescriptiveAnalysis:
 """
         
         if 'intervention_characteristics' in self.analysis_results:
-            report_content += "\n## 🔬 干预特征分析\n\n### 干预时长分布\n\n"
+            report_content += "\n## 🔬 干预特征分析\n\n### Intervention Duration Distribution\n\n"
             duration_dist = self.analysis_results['intervention_characteristics']['duration_distribution']
             for duration, count in duration_dist.items():
                 report_content += f"- **{duration}**: {count}项研究\n"
@@ -573,7 +573,7 @@ class DescriptiveAnalysis:
 
 ---
 
-*报告由研究特征描述性分析系统 V1.0 自动生成*
+*报告由Descriptive Analysis系统 V1.0 自动生成*
 """
         
         # 保存报告
@@ -594,21 +594,21 @@ class DescriptiveAnalysis:
         summary_data = []
         
         if 'study_distribution' in self.analysis_results:
-            # 教育阶段分布
+            # Education Stage分布
             education_dist = self.analysis_results['study_distribution']['education_distribution']
             for stage, count in education_dist.items():
                 summary_data.append({
-                    '分类': '教育阶段',
+                    '分类': 'Education Stage',
                     '子类别': stage,
                     '数量': count,
                     '百分比': f"{(count/len(self.valid_data)*100):.1f}%"
                 })
             
-            # 国家分布
+            # Country分布
             country_dist = self.analysis_results['study_distribution']['country_distribution']
             for country, count in country_dist.head(10).items():
                 summary_data.append({
-                    '分类': '国家分布',
+                    '分类': 'Country分布',
                     '子类别': country,
                     '数量': count,
                     '百分比': f"{(count/len(self.valid_data)*100):.1f}%"
@@ -634,7 +634,7 @@ class DescriptiveAnalysis:
 
 def descriptive_analysis(data_file=None):
     """
-    执行完整的研究特征描述性分析
+    执行完整的Descriptive Analysis
     
     参数:
     data_file: str, 数据文件路径
@@ -665,7 +665,7 @@ def descriptive_analysis(data_file=None):
     analyzer.export_tables()
     
     print("\n" + "="*60)
-    print("🎉 研究特征描述性分析完成！")
+    print("🎉 Descriptive Analysis完成！")
     print("="*60)
     print(f"📊 分析了 {len(analyzer.valid_data)} 项有效研究")
     print(f"📁 生成了 3 个输出文件")
@@ -683,15 +683,15 @@ if __name__ == "__main__":
         
         if 'study_distribution' in analyzer.analysis_results:
             education_dist = analyzer.analysis_results['study_distribution']['education_distribution']
-            print(f"   - 教育阶段分布: {dict(education_dist)}")
+            print(f"   - Education Stage分布: {dict(education_dist)}")
             
             country_dist = analyzer.analysis_results['study_distribution']['country_distribution']
-            print(f"   - 主要研究国家: {list(country_dist.head(3).index)}")
+            print(f"   - 主要研究Country: {list(country_dist.head(3).index)}")
         
         if 'sample_size' in analyzer.analysis_results:
             stats = analyzer.analysis_results['sample_size']['total_sample_stats']
-            print(f"   - 平均样本量: {stats['mean']:.1f}")
-            print(f"   - 样本量范围: {stats['min']:.0f} - {stats['max']:.0f}")
+            print(f"   - 平均Sample Size: {stats['mean']:.1f}")
+            print(f"   - Sample Size范围: {stats['min']:.0f} - {stats['max']:.0f}")
     else:
         print("❌ 分析失败，请检查数据文件")
 
