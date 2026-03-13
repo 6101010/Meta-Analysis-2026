@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 
 # =============================================================================
 # 阶段 0：环境与参数配置 (Phase 0: Environment & Parameter Configuration)
@@ -9,10 +9,10 @@ FILE_PATH: str = r"meta_analysis_prepared_data_v1.4.csv"  # 必须，来自step8
 ENCODING: str = "utf-8"  # 文件编码，可按需改为 'gbk'
 
 # 0.2. 核心列名定义 (Core Column Definitions)
-ES_COL: str = "es"  # 效应量所在列的列名
-VAR_COL: str = "v"  # 效应量方差所在列的列名
+ES_COL: str = "es"  # Effect Size所在列的列名
+VAR_COL: str = "v"  # Effect Size方差所在列的列名
 CLUSTER_VARIABLE: str = "authors"  # 聚类变量列名，若无嵌套结构则设为 None
-STUDY_LABEL_COL: str = "authors"  # 在森林图中用于标记研究的列名
+STUDY_LABEL_COL: str = "authors"  # 在Forest Plot中用于标记研究的列名
 
 # 0.3. 核心分析参数 (Core Analysis Parameters)
 RANDOM_SEED: int = 42  # 全局随机种子
@@ -85,7 +85,7 @@ def phase1_setup_and_precheck():
     # 1. 导入与播种 - 已在顶部完成
     log_message("INFO", f"使用 pandas 版本: {pd.__version__}")
     log_message("INFO", f"使用 numpy 版本: {np.__version__}")
-    log_message("INFO", f"使用 pymare 版本: {pymare.__version__}")
+    log_message("INFO", "Successfully loaded analysis libraries")
     log_message("INFO", f"全局随机种子设置为: {RANDOM_SEED}")
     
     # 2. 日志初始化 - 已完成
@@ -130,7 +130,7 @@ def phase1_setup_and_precheck():
     missing_var = df[VAR_COL].isnull().sum()
     
     if missing_es > 0 or missing_var > 0:
-        log_message("WARNING", f"发现缺失值：效应量 {missing_es} 个，方差 {missing_var} 个，将被移除")
+        log_message("WARNING", f"发现缺失值：Effect Size {missing_es} 个，方差 {missing_var} 个，将被移除")
         df = df.dropna(subset=[ES_COL, VAR_COL]).copy()
         log_message("INFO", f"移除缺失值后，剩余 {len(df)} 行数据")
         
@@ -189,10 +189,10 @@ def phase3_model_selection(df):
         total_clusters = len(cluster_sizes)
         single_effect_ratio = single_effect_clusters / total_clusters
         
-        log_message("INFO", f"聚类分析：共 {total_clusters} 个聚类，其中 {single_effect_clusters} 个仅含单个效应量")
+        log_message("INFO", f"聚类分析：共 {total_clusters} 个聚类，其中 {single_effect_clusters} 个仅含单个Effect Size")
         
         if single_effect_ratio > 0.9:
-            log_message("WARNING", f"模型稳定性警告：多数集群({single_effect_ratio:.1%})仅含单个效应量。三层次模型将按计划执行，但第二层方差（研究内部异质性）的估计可能不稳定或为零。")
+            log_message("WARNING", f"模型稳定性警告：多数集群({single_effect_ratio:.1%})仅含单个Effect Size。三层次模型将按计划执行，但第二层方差（研究内部异质性）的估计可能不稳定或为零。")
         
         model_type = 'Three-Level'
         
@@ -316,9 +316,9 @@ def calculate_heterogeneity(fitted_model, df, model_type):
         }
 
 def create_forest_plot(df, fitted_model, model_type):
-    """生成森林图"""
+    """生成Forest Plot"""
     
-    log_message("INFO", "正在生成森林图...")
+    log_message("INFO", "正在生成Forest Plot...")
     
     # 设置中文字体
     try:
@@ -335,7 +335,7 @@ def create_forest_plot(df, fitted_model, model_type):
     ci_lower = df[ES_COL] - 1.96 * np.sqrt(df[VAR_COL])
     ci_upper = df[ES_COL] + 1.96 * np.sqrt(df[VAR_COL])
     
-    # 获取汇总效应量
+    # 获取汇总Effect Size
     try:
         if hasattr(fitted_model, 'fe_params_'):
             summary_es_val = fitted_model.fe_params_
@@ -361,7 +361,7 @@ def create_forest_plot(df, fitted_model, model_type):
                     summary_es = float(fe_params)
             else:
                 summary_es = float(np.mean(df[ES_COL]))
-            summary_se = 0.1  # 默认标准误
+            summary_se = 0.1  # 默认Standard Error
         else:
             summary_es = float(np.mean(df[ES_COL]))
             summary_se = float(np.std(df[ES_COL]) / np.sqrt(len(df)))
@@ -369,7 +369,7 @@ def create_forest_plot(df, fitted_model, model_type):
         summary_ci_lower = float(summary_es - 1.96 * summary_se)
         summary_ci_upper = float(summary_es + 1.96 * summary_se)
     except Exception as e:
-        log_message("WARNING", f"获取汇总效应量时出错: {e}，使用简单平均值")
+        log_message("WARNING", f"获取汇总Effect Size时出错: {e}，使用简单平均值")
         summary_es = float(np.mean(df[ES_COL]))
         summary_se = float(np.std(df[ES_COL]) / np.sqrt(len(df)))
         summary_ci_lower = float(summary_es - 1.96 * summary_se)
@@ -378,14 +378,14 @@ def create_forest_plot(df, fitted_model, model_type):
     # 创建图形
     fig, ax = plt.subplots(figsize=(12, max(8, len(df) * 0.4 + 2)))
     
-    # 绘制各研究的效应量
+    # 绘制各研究的Effect Size
     y_positions = range(len(df))
     
     for i, (idx, row) in enumerate(df.iterrows()):
         # 绘制置信区间线
         ax.plot([ci_lower.iloc[i], ci_upper.iloc[i]], [i, i], 'k-', alpha=0.6)
         
-        # 绘制效应量点，大小与权重成正比
+        # 绘制Effect Size点，大小与权重成正比
         size = max(20, weights_normalized.iloc[i] * 3)
         ax.scatter(row[ES_COL], i, s=size, c='blue', alpha=0.7, zorder=3)
         
@@ -393,7 +393,7 @@ def create_forest_plot(df, fitted_model, model_type):
         label = str(row[STUDY_LABEL_COL])[:30]  # 限制标签长度
         ax.text(-0.1, i, label, ha='right', va='center', fontsize=8)
     
-    # 绘制汇总效应量（菱形）
+    # 绘制汇总Effect Size（菱形）
     summary_y = len(df) + 1
     diamond_x = [summary_ci_lower, summary_es, summary_ci_upper, summary_es]
     diamond_y = [summary_y, summary_y + 0.3, summary_y, summary_y - 0.3]
@@ -402,17 +402,17 @@ def create_forest_plot(df, fitted_model, model_type):
                              closed=True, facecolor='red', alpha=0.7, zorder=4)
     ax.add_patch(diamond)
     
-    # 添加汇总效应量标签
-    ax.text(-0.1, summary_y, '汇总效应量', ha='right', va='center', 
+    # 添加汇总Effect Size标签
+    ax.text(-0.1, summary_y, '汇总Effect Size', ha='right', va='center', 
             fontsize=10, fontweight='bold')
     
     # 添加零线
     ax.axvline(x=0, color='black', linestyle='--', alpha=0.5)
     
     # 设置图形属性
-    ax.set_xlabel('效应量', fontsize=12)
+    ax.set_xlabel('Effect Size', fontsize=12)
     ax.set_ylabel('研究', fontsize=12)
-    ax.set_title('元分析森林图', fontsize=14, fontweight='bold')
+    ax.set_title('元分析Forest Plot', fontsize=14, fontweight='bold')
     
     # 设置y轴
     ax.set_ylim(-0.5, len(df) + 1.5)
@@ -424,9 +424,9 @@ def create_forest_plot(df, fitted_model, model_type):
     # 保存图形
     try:
         plt.savefig(OUTPUT_PLOT_FILENAME, dpi=300, bbox_inches='tight')
-        log_message("INFO", f"森林图已保存到: {OUTPUT_PLOT_FILENAME}")
+        log_message("INFO", f"Forest Plot已保存到: {OUTPUT_PLOT_FILENAME}")
     except Exception as e:
-        log_message("ERROR", f"保存森林图时出错: {e}")
+        log_message("ERROR", f"保存Forest Plot时出错: {e}")
     
     plt.close()
 
@@ -456,7 +456,7 @@ def generate_comprehensive_report(df, fitted_model, model_type, heterogeneity_st
     
     log_message("INFO", "正在生成综合分析报告...")
     
-    # 获取汇总效应量
+    # 获取汇总Effect Size
     try:
         if hasattr(fitted_model, 'fe_params_'):
             fe_params = fitted_model.fe_params_
@@ -475,7 +475,7 @@ def generate_comprehensive_report(df, fitted_model, model_type, heterogeneity_st
                 summary_se = 0.1
         elif hasattr(fitted_model, 'params_'):
             summary_es = float(np.mean(df[ES_COL]))
-            summary_se = 0.1  # 默认标准误
+            summary_se = 0.1  # 默认Standard Error
         else:
             summary_es = float(np.mean(df[ES_COL]))
             summary_se = float(np.std(df[ES_COL]) / np.sqrt(len(df)))
@@ -483,7 +483,7 @@ def generate_comprehensive_report(df, fitted_model, model_type, heterogeneity_st
         ci_lower = float(summary_es - 1.96 * summary_se)
         ci_upper = float(summary_es + 1.96 * summary_se)
     except Exception as e:
-        log_message("WARNING", f"获取汇总效应量时出错: {e}，使用简单平均值")
+        log_message("WARNING", f"获取汇总Effect Size时出错: {e}，使用简单平均值")
         summary_es = float(np.mean(df[ES_COL]))
         summary_se = float(np.std(df[ES_COL]) / np.sqrt(len(df)))
         ci_lower = float(summary_es - 1.96 * summary_se)
@@ -500,15 +500,15 @@ def generate_comprehensive_report(df, fitted_model, model_type, heterogeneity_st
     
     # 异质性解释
     if model_type == 'Two-Level':
-        heterogeneity_text = f"总异质性 I²为 {heterogeneity_stats['I2_total']:.1f}%，表明效应量在研究间存在 {heterogeneity_stats['I2_total']:.1f}% 的真实差异。"
+        heterogeneity_text = f"总异质性 I²为 {heterogeneity_stats['I2_total']:.1f}%，表明Effect Size在研究间存在 {heterogeneity_stats['I2_total']:.1f}% 的真实差异。"
     else:
-        heterogeneity_text = f"总异质性中，有 {heterogeneity_stats['I2_level_3']:.1f}% 可归因于研究间的真实差异，而 {heterogeneity_stats['I2_level_2']:.1f}% 则源于同一研究内部不同效应量之间的差异。"
+        heterogeneity_text = f"总异质性中，有 {heterogeneity_stats['I2_level_3']:.1f}% 可归因于研究间的真实差异，而 {heterogeneity_stats['I2_level_2']:.1f}% 则源于同一研究内部不同Effect Size之间的差异。"
     
     # 生成报告内容
     report_content = f"""# 元分析综合报告
 
 ## 1. 执行摘要
-本报告详细介绍了一项针对 {k} 项研究进行的 {model_type_cn} 元分析的结果。经过模型拟合，最终的汇总效应量为 {summary_es:.3f}，其95%置信区间为 [{ci_lower:.3f}, {ci_upper:.3f}]。
+本报告详细介绍了一项针对 {k} 项研究进行的 {model_type_cn} 元分析的结果。经过模型拟合，最终的汇总Effect Size为 {summary_es:.3f}，其95%置信区间为 [{ci_lower:.3f}, {ci_upper:.3f}]。
 
 ## 2. 研究方法
 本分析使用 Python 语言完成，核心计算库包括 pandas ({pd.__version__})、numpy ({np.__version__}) 和 pymare ({pymare.__version__})。为保证结果的完全可复现性，全局随机种子被设定为 {RANDOM_SEED}。
@@ -516,7 +516,7 @@ def generate_comprehensive_report(df, fitted_model, model_type, heterogeneity_st
 基于数据的内在结构，本研究选用了一个 {model_type_cn} 模型进行分析。{model_reason}。模型的核心参数估计采用了限制性最大似然法 (Restricted Maximum Likelihood, REML)。模型优化算法最终成功收敛。
 
 ## 3. 异质性分析
-异质性检验揭示了效应量在研究间的变异程度：
+异质性检验揭示了Effect Size在研究间的变异程度：
 
 """
 
@@ -531,12 +531,12 @@ def generate_comprehensive_report(df, fitted_model, model_type, heterogeneity_st
     report_content += f"结果解读: {heterogeneity_text}\n\n"
     
     report_content += f"""## 4. 可视化总结
-下图（森林图）直观地展示了每个独立研究的效应量大小、其置信区间，以及最终的汇总效应量。图中方块的大小与该研究在模型中的权重成正比。
+下图（Forest Plot）直观地展示了每个独立研究的Effect Size大小、其置信区间，以及最终的汇总Effect Size。图中方块的大小与该研究在模型中的权重成正比。
 
-![森林图]({OUTPUT_PLOT_FILENAME})
+![Forest Plot]({OUTPUT_PLOT_FILENAME})
 
 ## 5. 后续步骤
-本次分析生成的拟合模型对象 (`fitted_model`) 和完整的效应量数据已保存，可用于后续的调节效应分析、发表偏倚检验或敏感性分析。
+本次分析生成的拟合模型对象 (`fitted_model`) 和完整的Effect Size数据已保存，可用于后续的Moderator Analysis、发表偏倚检验或敏感性分析。
 
 ---
 *报告生成时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*
@@ -586,7 +586,7 @@ def phase5_results_generation(df, fitted_model, model_type, k):
     # 保存结果CSV
     save_results_csv(df, fitted_model)
     
-    # 生成森林图
+    # 生成Forest Plot
     create_forest_plot(df, fitted_model, model_type)
     
     # 生成综合报告
@@ -629,7 +629,7 @@ def main():
                 summary_se = fitted_model.fe_se_[0] if hasattr(fitted_model, 'fe_se_') else 0.1
             elif hasattr(fitted_model, 'params_'):
                 summary_es = fitted_model.params_.get('intercept', np.mean(df[ES_COL]))
-                summary_se = 0.1  # 默认标准误
+                summary_se = 0.1  # 默认Standard Error
             else:
                 summary_es = np.mean(df[ES_COL])
                 summary_se = np.std(df[ES_COL]) / np.sqrt(len(df))
@@ -637,7 +637,7 @@ def main():
             ci_lower = summary_es - 1.96 * summary_se
             ci_upper = summary_es + 1.96 * summary_se
         except Exception as e:
-            log_message("WARNING", f"获取汇总效应量时出错: {e}，使用简单平均值")
+            log_message("WARNING", f"获取汇总Effect Size时出错: {e}，使用简单平均值")
             summary_es = np.mean(df[ES_COL])
             summary_se = np.std(df[ES_COL]) / np.sqrt(len(df))
             ci_lower = summary_es - 1.96 * summary_se
@@ -645,7 +645,7 @@ def main():
         
         log_message("INFO", "=" * 50)
         log_message("INFO", "元分析完成！主要结果：")
-        log_message("INFO", f"汇总效应量: {summary_es:.3f}")
+        log_message("INFO", f"汇总Effect Size: {summary_es:.3f}")
         log_message("INFO", f"95% 置信区间: [{ci_lower:.3f}, {ci_upper:.3f}]")
         log_message("INFO", f"模型类型: {model_type}")
         log_message("INFO", f"研究数量: {k}")
@@ -659,7 +659,7 @@ def main():
         log_message("INFO", "输出文件:")
         log_message("INFO", f"- 审计日志: {OUTPUT_LOG_FILENAME}")
         log_message("INFO", f"- 结果数据: {OUTPUT_RESULTS_FILENAME}")
-        log_message("INFO", f"- 森林图: {OUTPUT_PLOT_FILENAME}")
+        log_message("INFO", f"- Forest Plot: {OUTPUT_PLOT_FILENAME}")
         log_message("INFO", f"- 综合报告: {OUTPUT_REPORT_FILENAME}")
         
         # 最终保存日志
