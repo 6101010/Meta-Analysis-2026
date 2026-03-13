@@ -1,6 +1,6 @@
 # Code and data for "[From Tools to Social Partners A Meta-Analysis of Generative AI’s Superiority via CASA and SDT]"
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14986348.svg)](https://doi.org/10.5281/zenodo.14986348)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14986348.svg)](https://doi.org/10.5281/zenodo.18993414)
 
 This repository contains the dataset and automated Python workflows to replicate the meta-analysis presented in the article "[From Tools to Social Partners A Meta-Analysis of Generative AI’s Superiority via CASA and SDT]" submitted to *Humanities and Social Sciences Communications*.
 
