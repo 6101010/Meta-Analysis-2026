@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 import pandas as pd
@@ -22,7 +22,7 @@ plt.rcParams['axes.unicode_minus'] = False
 warnings.filterwarnings('ignore')
 
 class MetaAnalysisWorkflow:
-    """元分析效应量计算自动化工作流"""
+    """元分析Effect Size计算自动化工作流"""
     
     def __init__(self):
         """初始化工作流"""
@@ -33,7 +33,7 @@ class MetaAnalysisWorkflow:
     def setup_configuration(self):
         """设置核心配置参数"""
         # --- 核心文件与设置 ---
-        self.FILE_PATH = r"meta_analysis_results_new.csv"
+        self.FILE_PATH = r"meta_analysis_results_english.csv"
         self.ENCODING = "utf-8"
         self.RANDOM_SEED = 42
         
@@ -70,7 +70,7 @@ class MetaAnalysisWorkflow:
         self.logger = logging.getLogger(__name__)
         
     def define_effect_size_patterns(self):
-        """定义效应量模式的精确匹配别名"""
+        """定义Effect Size模式的精确匹配别名"""
         self.EXACT_MATCH_ALIASES = {
             # 模式A: 连续变量 (Cohen's d)
             'mean_e': ['mean_experimental', 'mean_exp', 'mean_treatment', 'mean_treat', 
@@ -145,12 +145,12 @@ class MetaAnalysisWorkflow:
             raise
             
     def detect_effect_size_pattern(self, df: pd.DataFrame) -> str:
-        """1.3 效应量模式解析"""
-        self.logger.info("开始效应量模式检测")
+        """1.3 Effect Size模式解析"""
+        self.logger.info("开始Effect Size模式检测")
         
         # 检查强制覆盖
         if self.FORCED_EFFECT_SIZE_PATTERN:
-            self.logger.info(f"使用强制指定的效应量模式: {self.FORCED_EFFECT_SIZE_PATTERN}")
+            self.logger.info(f"使用强制指定的Effect Size模式: {self.FORCED_EFFECT_SIZE_PATTERN}")
             return self.FORCED_EFFECT_SIZE_PATTERN
             
         # 定义模式所需的列
@@ -215,15 +215,15 @@ class MetaAnalysisWorkflow:
         if len(pattern_matches) == 1:
             detected_pattern = list(pattern_matches.keys())[0]
             self.column_mapping = pattern_matches[detected_pattern]
-            self.logger.info(f"检测到效应量模式: {detected_pattern}")
+            self.logger.info(f"检测到Effect Size模式: {detected_pattern}")
             self.logger.info(f"列映射: {self.column_mapping}")
             return detected_pattern
         elif len(pattern_matches) == 0:
-            self.logger.error("未检测到任何有效的效应量模式")
-            raise ValueError("未检测到任何有效的效应量模式，请使用FORCED_EFFECT_SIZE_PATTERN或CUSTOM_COLUMN_ALIASES进行手动指定")
+            self.logger.error("未检测到任何有效的Effect Size模式")
+            raise ValueError("未检测到任何有效的Effect Size模式，请使用FORCED_EFFECT_SIZE_PATTERN或CUSTOM_COLUMN_ALIASES进行手动指定")
         else:
-            self.logger.error(f"检测到多个效应量模式: {list(pattern_matches.keys())}")
-            raise ValueError("检测到多个效应量模式，请使用FORCED_EFFECT_SIZE_PATTERN进行手动指定")
+            self.logger.error(f"检测到多个Effect Size模式: {list(pattern_matches.keys())}")
+            raise ValueError("检测到多个Effect Size模式，请使用FORCED_EFFECT_SIZE_PATTERN进行手动指定")
             
     def calculate_heuristic_score(self, column_name: str, standard_column: str) -> int:
         """计算启发式匹配分数"""
@@ -340,7 +340,7 @@ class MetaAnalysisWorkflow:
                         exclude_reason = f'Exclude: Missing Value ({std_col})'
                         break
                         
-                # 检查样本量
+                # 检查Sample Size
                 if not exclude_reason:
                     n_e_val = row[self.column_mapping['n_e']]
                     n_c_val = row[self.column_mapping['n_c']]
@@ -411,18 +411,18 @@ class MetaAnalysisWorkflow:
         return df_work
         
     def compute_effect_sizes(self, df: pd.DataFrame, pattern: str) -> pd.DataFrame:
-        """阶段3：效应量计算引擎"""
-        self.logger.info("开始阶段3：效应量计算引擎")
+        """阶段3：Effect Size计算引擎"""
+        self.logger.info("开始阶段3：Effect Size计算引擎")
         
         # 3.1 创建安全计算视图
         df_valid = df[df['qa_status'] == 'OK'].copy()
         self.logger.info(f"有效数据行数: {len(df_valid)}")
         
         if len(df_valid) == 0:
-            self.logger.error("没有有效数据进行效应量计算")
-            raise ValueError("没有有效数据进行效应量计算")
+            self.logger.error("没有有效数据进行Effect Size计算")
+            raise ValueError("没有有效数据进行Effect Size计算")
             
-        # 3.2 效应量计算
+        # 3.2 Effect Size计算
         effect_sizes = []
         variances = []
         
@@ -479,7 +479,7 @@ class MetaAnalysisWorkflow:
                 variances.append(v)
                 
             except Exception as e:
-                self.logger.warning(f"行 {idx} 效应量计算失败: {str(e)}")
+                self.logger.warning(f"行 {idx} Effect Size计算失败: {str(e)}")
                 effect_sizes.append(np.nan)
                 variances.append(np.nan)
                 
@@ -496,12 +496,12 @@ class MetaAnalysisWorkflow:
         df_result.loc[valid_indices, 'es'] = effect_sizes
         df_result.loc[valid_indices, 'v'] = variances
         
-        # 计算标准误和置信区间
+        # 计算Standard Error和置信区间
         df_result['se'] = np.sqrt(df_result['v'])
         df_result['es_ci_lower'] = df_result['es'] - 1.96 * df_result['se']
         df_result['es_ci_upper'] = df_result['es'] + 1.96 * df_result['se']
         
-        self.logger.info(f"成功计算 {len(valid_indices)} 个效应量")
+        self.logger.info(f"成功计算 {len(valid_indices)} 个Effect Size")
         
         return df_result
         
@@ -521,14 +521,14 @@ class MetaAnalysisWorkflow:
                 f.write("-" * 30 + "\n")
                 
     def create_visualization(self, df: pd.DataFrame):
-        """创建效应量分布可视化"""
-        self.logger.info("创建效应量分布可视化")
+        """创建Effect Size Distribution可视化"""
+        self.logger.info("创建Effect Size Distribution可视化")
         
-        # 获取有效的效应量数据
+        # 获取有效的Effect Size数据
         valid_es = df[df['qa_status'] == 'OK']['es'].dropna()
         
         if len(valid_es) == 0:
-            self.logger.warning("没有有效的效应量数据用于可视化")
+            self.logger.warning("没有有效的Effect Size数据用于可视化")
             return
             
         # 创建图形
@@ -537,22 +537,22 @@ class MetaAnalysisWorkflow:
         # 主直方图
         plt.subplot(2, 2, 1)
         plt.hist(valid_es, bins=20, alpha=0.7, color='skyblue', edgecolor='black')
-        plt.title('效应量分布直方图', fontsize=14, fontweight='bold')
-        plt.xlabel('效应量 (Effect Size)')
-        plt.ylabel('频数')
+        plt.title('Effect Size Distribution直方图', fontsize=14, fontweight='bold')
+        plt.xlabel('Effect Size (Effect Size)')
+        plt.ylabel('Frequency')
         plt.grid(True, alpha=0.3)
         
         # 箱线图
         plt.subplot(2, 2, 2)
         plt.boxplot(valid_es, vert=True)
-        plt.title('效应量箱线图', fontsize=14, fontweight='bold')
-        plt.ylabel('效应量 (Effect Size)')
+        plt.title('Effect Size箱线图', fontsize=14, fontweight='bold')
+        plt.ylabel('Effect Size (Effect Size)')
         plt.grid(True, alpha=0.3)
         
         # Q-Q图
         plt.subplot(2, 2, 3)
         stats.probplot(valid_es, dist="norm", plot=plt)
-        plt.title('效应量正态性Q-Q图', fontsize=14, fontweight='bold')
+        plt.title('Effect Size正态性Q-Q图', fontsize=14, fontweight='bold')
         plt.grid(True, alpha=0.3)
         
         # 描述性统计文本
@@ -561,7 +561,7 @@ class MetaAnalysisWorkflow:
         stats_text = f"""
         描述性统计:
         
-        样本量: {len(valid_es)}
+        Sample Size: {len(valid_es)}
         均值: {valid_es.mean():.4f}
         标准差: {valid_es.std():.4f}
         最小值: {valid_es.min():.4f}
@@ -579,7 +579,7 @@ class MetaAnalysisWorkflow:
         plt.savefig(self.OUTPUT_VISUALIZATION_FILENAME, dpi=300, bbox_inches='tight')
         plt.close()
         
-        self.logger.info(f"效应量分布图已保存: {self.OUTPUT_VISUALIZATION_FILENAME}")
+        self.logger.info(f"Effect Size Distribution图已保存: {self.OUTPUT_VISUALIZATION_FILENAME}")
         
     def generate_comprehensive_report(self, df: pd.DataFrame, pattern: str, cluster_var: str):
         """阶段4：生成综合分析报告"""
@@ -594,17 +594,17 @@ class MetaAnalysisWorkflow:
         valid_es = df[df['qa_status'] == 'OK']['es'].dropna()
         
         # 生成报告
-        report_content = f"""# 元分析效应量计算综合分析报告 V1.4
+        report_content = f"""# 元分析Effect Size计算综合分析报告 V1.4
 
 ## 执行摘要
 
-本报告基于效应量计算自动化工作流构建协议 V1.4.1 生成，对元分析数据进行了全面的预处理和效应量计算。
+本报告基于Effect Size计算自动化工作流构建协议 V1.4.1 生成，对元分析数据进行了全面的预处理和Effect Size计算。
 
 ### 分析概览
 - **原始研究数量**: {total_studies}
 - **最终纳入研究数量**: {valid_studies}
 - **排除研究数量**: {excluded_studies}
-- **检测到的效应量模式**: {pattern}
+- **检测到的Effect Size模式**: {pattern}
 - **聚类变量**: {cluster_var}
 - **生成时间**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
@@ -615,13 +615,13 @@ class MetaAnalysisWorkflow:
 - **软件版本**: Python 3.x, pandas, pingouin, numpy, matplotlib
 - **编码格式**: {self.ENCODING}
 
-### 效应量模式检测
+### Effect Size模式检测
 """
 
         if self.FORCED_EFFECT_SIZE_PATTERN:
-            report_content += f"效应量模式通过用户强制指定确定为: **{pattern}**\n\n"
+            report_content += f"Effect Size模式通过用户强制指定确定为: **{pattern}**\n\n"
         else:
-            report_content += f"效应量模式通过自动检测确定为: **{pattern}**\n\n"
+            report_content += f"Effect Size模式通过自动检测确定为: **{pattern}**\n\n"
             
         report_content += f"**列映射关系**:\n"
         for std_col, actual_col in self.column_mapping.items():
@@ -642,14 +642,14 @@ class MetaAnalysisWorkflow:
 1. **强制类型转换**: 所有数值列都经过了 `pandas.to_numeric()` 处理，确保数据类型的一致性
 2. **数据质量审计**: 应用了以下排除规则：
    - 缺失值检查
-   - 样本量验证 (n > 1)
+   - Sample Size验证 (n > 1)
    - 标准差验证 (SD > 0)
    - 相关系数范围验证 (-1 ≤ r ≤ 1)
    - 二元数据逻辑验证 (events ≤ total)
 
-### 效应量计算
+### Effect Size计算
 
-**效应量指标**: """
+**Effect Size指标**: """
 
         if pattern == 'A':
             report_content += "Cohen's d (标准化均值差)\n"
@@ -714,10 +714,10 @@ class MetaAnalysisWorkflow:
         report_content += f"""
 ## 视觉诊断
 
-### 效应量分布
-下图展示了最终纳入研究的效应量分布情况。该图已保存为 `{self.OUTPUT_VISUALIZATION_FILENAME}`。
+### Effect Size Distribution
+下图展示了最终纳入研究的Effect Size Distribution情况。该图已保存为 `{self.OUTPUT_VISUALIZATION_FILENAME}`。
 
-![效应量分布图]({self.OUTPUT_VISUALIZATION_FILENAME})
+![Effect Size Distribution图]({self.OUTPUT_VISUALIZATION_FILENAME})
 
 """
 
@@ -725,11 +725,11 @@ class MetaAnalysisWorkflow:
         if len(valid_es) > 0:
             report_content += f"""## 计算结果概览
 
-### 效应量描述性统计
+### Effect Size描述性统计
 
 | 统计量 | 值 |
 |--------|-----|
-| 样本量 | {len(valid_es)} |
+| Sample Size | {len(valid_es)} |
 | 均值 | {valid_es.mean():.4f} |
 | 标准差 | {valid_es.std():.4f} |
 | 最小值 | {valid_es.min():.4f} |
@@ -776,7 +776,7 @@ CUSTOM_CLUSTER_CANDIDATES = {self.CUSTOM_CLUSTER_CANDIDATES}
 
 ---
 
-*本报告由元分析效应量计算自动化工作流协议 V1.4.1 自动生成*
+*本报告由元分析Effect Size计算自动化工作流协议 V1.4.1 自动生成*
 """
 
         # 保存报告
@@ -788,7 +788,7 @@ CUSTOM_CLUSTER_CANDIDATES = {self.CUSTOM_CLUSTER_CANDIDATES}
     def run_workflow(self):
         """执行完整的工作流"""
         try:
-            self.logger.info("开始执行元分析效应量计算自动化工作流 V1.4.1")
+            self.logger.info("开始执行元分析Effect Size计算自动化工作流 V1.4.1")
             
             # 阶段0：环境配置（已在初始化中完成）
             self.logger.info("阶段0：环境配置与用户意图解析 - 完成")
@@ -801,7 +801,7 @@ CUSTOM_CLUSTER_CANDIDATES = {self.CUSTOM_CLUSTER_CANDIDATES}
             # 阶段2：数据完整性协议
             df_processed = self.data_integrity_protocol(df, pattern)
             
-            # 阶段3：效应量计算引擎
+            # 阶段3：Effect Size计算引擎
             df_final = self.compute_effect_sizes(df_processed, pattern)
             
             # 保存预处理后的数据
@@ -817,7 +817,7 @@ CUSTOM_CLUSTER_CANDIDATES = {self.CUSTOM_CLUSTER_CANDIDATES}
             # 阶段4：生成综合报告
             self.generate_comprehensive_report(df_final, pattern, cluster_var)
             
-            self.logger.info("元分析效应量计算自动化工作流执行完成！")
+            self.logger.info("元分析Effect Size计算自动化工作流执行完成！")
             
             return df_final
             
@@ -828,7 +828,7 @@ CUSTOM_CLUSTER_CANDIDATES = {self.CUSTOM_CLUSTER_CANDIDATES}
 def main():
     """主函数"""
     print("=" * 60)
-    print("元分析效应量计算自动化工作流 V1.4.1")
+    print("元分析Effect Size计算自动化工作流 V1.4.1")
     print("Meta-Analysis Effect Size Calculation Automated Workflow")
     print("=" * 60)
     
