@@ -1,0 +1,15 @@
+# Search Strategies for Meta-Analysis
+
+This document outlines the full search strategies and exact query strings used for identifying relevant literature in the specified databases.
+
+## 1. Web of Science (Core Collection)
+* Date of Search: September 7, 2025]
+* Records Identified: 1,943
+
+Search Query:
+```text
+(TS=("Artificial Intelligence" OR AI OR "Machine Learning" OR "Deep Learning" OR "Intelligent Tutoring System"))
+AND
+(TS=("Student Performance" OR "Academic Performance" OR "Learning Outcome*" OR "Student Achievement" OR "Educational Outcome*"))
+AND
+PY=2016-2025
