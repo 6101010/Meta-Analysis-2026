@@ -1,0 +1,22 @@
+# Inclusion and Exclusion Criteria
+
+Studies were selected according to predefined inclusion and exclusion criteria. A study was included if it met all of the following conditions.
+
+## Exclusion Criteria
+
+A study was excluded if it met any of the following conditions:
+
+* E1: Non-empirical research. The abstract contained terms such as review, meta-analysis, systematic review, commentary, position paper, or similar indicators suggesting that the paper was not based on original empirical data.
+* E2: Future research proposals. The abstract used speculative language (e.g., "propose a study," "future work will...") indicating that the paper described a research plan rather than a completed study.
+* E3: Absence of a control group. The abstract explicitly stated "no control group," "single-group design," or did not include any comparison between experimental and control conditions.
+* E4: Non-educational context. The research was conducted purely in clinical, industrial, or corporate training settings, without involving formal K–12 or higher education students.
+
+## Inclusion Criteria
+
+A study was included only if all of the following criteria were met:
+
+* I1: Research objective. The study quantitatively examined the effect of AI-based educational applications on academic performance. Specifically, the abstract contained both:
+    * (a) AI-related terms (e.g., Artificial Intelligence, AI, Machine Learning, Deep Learning, Chatbot, Intelligent Tutoring System, Adaptive Learning)
+    * (b) Learning performance terms (e.g., academic achievement, student performance, learning outcomes, grades, test scores, knowledge acquisition), indicating a causal relationship between the two.
+* I2: Research design. The study employed an experimental or quasi-experimental design, explicitly mentioning control group, experimental group, pre-test/post-test, or randomized controlled trial (RCT) in describing the research procedure, rather than only referencing these in a literature review.
+* I3: Dependent variable. The dependent variable represented a direct measure of academic performance, such as test scores, knowledge gain, or skill acquisition. Studies that used attitudinal or satisfaction questionnaires as the sole outcome variable were excluded; such measures were accepted only as secondary outcomes.
